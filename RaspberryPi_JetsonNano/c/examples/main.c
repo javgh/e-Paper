@@ -71,7 +71,7 @@ int main(void)
 	// EPD_5in84_test();
 	
     // EPD_7in5_test();
-    // EPD_7in5_V2_test();
+    EPD_7in5_V2_test();
 
     // EPD_7in5bc_test();
     // EPD_7in5b_V2_test();

@@ -31,7 +31,7 @@
 #include "EPD_7in5_V2.h"
 #include <time.h> 
 
-int EPD_7in5_V2_test(void)
+int EPD_7in5_V2_test_original(void)
 {
     printf("EPD_7IN5_V2_test Demo\r\n");
     if(DEV_Module_Init()!=0){
@@ -130,3 +130,53 @@ int EPD_7in5_V2_test(void)
     return 0;
 }
 
+int EPD_7in5_V2_test(void)
+{
+    UWORD size = (EPD_7IN5_V2_WIDTH / 8) * EPD_7IN5_V2_HEIGHT;
+    UBYTE image[(EPD_7IN5_V2_WIDTH / 8) * EPD_7IN5_V2_HEIGHT];
+    memset(image, BLACK, size);
+
+    int c;
+    UWORD i;
+    UWORD j;
+    UBYTE block;
+    for (i = 0; i < size; i++) {
+        block = BLACK;
+        for (j = 0; j < 8;) {
+            c = getchar();
+            if (c == EOF) {
+                printf("missing image data on stdin\n");
+                return -1;
+            }
+            if (c != ' ' && c != '.') {
+                continue;
+            }
+            if (c == ' ') {
+                block |= 1 << (7 - j); // set to white
+            }
+            j++;
+        }
+        image[i] = block;
+    }
+
+    if(DEV_Module_Init()!=0){
+        return -1;
+    }
+
+    printf("e-Paper Init and Clear...\r\n");
+    EPD_7IN5_V2_Init();
+    EPD_7IN5_V2_Clear();
+    DEV_Delay_ms(500);
+
+    EPD_7IN5_V2_Display(image);
+    DEV_Delay_ms(2000);
+
+    printf("Goto Sleep...\r\n");
+    EPD_7IN5_V2_Sleep();
+    DEV_Delay_ms(2000);
+
+    printf("close 5V, Module enters 0 power consumption ...\r\n");
+    DEV_Module_Exit();
+
+    return 0;
+}
